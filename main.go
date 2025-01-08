@@ -2,45 +2,43 @@ package main
 
 import (
 	"fmt"
-	"github.com/go-kit/log"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/collectors"
-	"github.com/prometheus/node_exporter/collector"
+	"if-win-dex-agent/internal/pdh"
 )
 
+type thermalZoneData struct {
+	Name                     string
+	HighPrecisionTemperature float64 `perfdata:"High Precision Temperature"`
+	PercentPassiveLimit      float64 `perfdata:"% Passive Limit"`
+	ThrottleReasons          float64 `perfdata:"Throttle Reasons"`
+}
+
+type tcpData struct {
+	ConnectionFailures          float64 `perfdata:"Connection Failures"`
+	ConnectionsActive           float64 `perfdata:"Connections Active"`
+	ConnectionsEstablished      float64 `perfdata:"Connections Established"`
+	ConnectionsPassive          float64 `perfdata:"Connections Passive"`
+	ConnectionsReset            float64 `perfdata:"Connections Reset"`
+	SegmentsPerSec              float64 `perfdata:"Segments/sec"`
+	SegmentsReceivedPerSec      float64 `perfdata:"Segments Received/sec"`
+	SegmentsRetransmittedPerSec float64 `perfdata:"Segments Retransmitted/sec"`
+	SegmentsSentPerSec          float64 `perfdata:"Segments Sent/sec"`
+}
+
 func main() {
-	// Create a new registry
-	registry := prometheus.NewRegistry()
+	var thermalZoneDataResults []thermalZoneData
+	var tcpDataResults []tcpData
 
-	logger := log.NewNopLogger()
-
-	// Create the CPU and memory collectors
-	cpuCollector := collectors.NewProcessCollector(collectors.ProcessCollectorOpts{})
-	memCollector := collectors.NewGoCollector()
-
-	// Register the collectors with the registry
-	registry.MustRegister(cpuCollector)
-	registry.MustRegister(memCollector)
-
-	// Enable collectors
-	nodeCollector, err := collector.NewNodeCollector(logger)
+	thermalZoneDataCollector, err := pdh.NewCollector[thermalZoneData]("Thermal Zone Information", pdh.InstancesAll)
+	tcpDataCollector, err := pdh.NewCollector[tcpData]("TCPv4", pdh.InstancesAll)
 	if err != nil {
-		fmt.Println("Error creating node collector:", err)
-		return
+		println(err.Error())
 	}
-
-	// Register the collector with the registry
-	registry.MustRegister(nodeCollector)
-
-	// Gather the metrics
-	metricFamilies, err := registry.Gather()
+	err = thermalZoneDataCollector.Collect(&thermalZoneDataResults)
 	if err != nil {
-		fmt.Println("Error gathering metrics:", err)
-		return
+		println(err.Error())
 	}
+	err = tcpDataCollector.Collect(&tcpDataResults)
+	fmt.Println(thermalZoneDataResults[0])
+	println(tcpDataResults[0].ConnectionFailures)
 
-	// Print the metrics to stdout
-	for _, mf := range metricFamilies {
-		fmt.Println(mf)
-	}
 }
