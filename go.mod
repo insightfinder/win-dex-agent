@@ -5,6 +5,8 @@ go 1.23
 toolchain go1.23.4
 
 require (
+	github.com/bigkevmcd/go-configparser v0.0.0-20240808124832-fc81059ea0bd
+	github.com/carlmjohnson/requests v0.24.3
 	github.com/glebarez/sqlite v1.11.0
 	github.com/go-ole/go-ole v1.3.0
 	github.com/prometheus/client_golang v1.20.5
@@ -20,13 +22,15 @@ require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/mattn/go-isatty v0.0.17 // indirect
+	github.com/kr/text v0.2.0 // indirect
+	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
 	github.com/prometheus/common v0.55.0 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
-	golang.org/x/text v0.16.0 // indirect
+	golang.org/x/net v0.27.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	modernc.org/libc v1.22.5 // indirect
 	modernc.org/mathutil v1.5.0 // indirect

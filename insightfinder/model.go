@@ -28,3 +28,9 @@ type MetricDataReceivePayload struct {
 	SamplingInterval string                  `json:"si,omitempty"`
 	CloudType        string                  `json:"ct,omitempty"`
 }
+
+type IFMetricPostRequestPayload struct {
+	LicenseKey string                   `json:"licenseKey" validate:"required"`
+	UserName   string                   `json:"userName" validate:"required"`
+	Data       MetricDataReceivePayload `json:"data" validate:"required"`
+}

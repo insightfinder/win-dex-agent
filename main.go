@@ -3,6 +3,7 @@ package main
 import (
 	"if-win-dex-agent/cache"
 	"if-win-dex-agent/collector"
+	"if-win-dex-agent/insightfinder"
 	"if-win-dex-agent/tool"
 	"log/slog"
 	"strconv"
@@ -19,6 +20,9 @@ func main() {
 		slog.Error("Failed to create cache service")
 		return
 	}
+
+	// Init InsightFinder service
+	IFClient := insightfinder.CreateInsightFinderClient("https://stg.insightfinder.com", "maoyuwang", "", "maoyu-test-win-dex-1")
 
 	collectorService := collector.NewPdhCollectorService()
 	collectorService.Collect()
@@ -37,6 +41,6 @@ func main() {
 
 	idm := tool.BuildIDMFromCache(time.Now(), "Win-Dex-Agent", cacheService)
 	println(idm)
+	IFClient.SendMetricData(idm)
 	cacheService.ClearCache()
-
 }
