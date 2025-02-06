@@ -37,9 +37,8 @@ func (cache *CacheService) ClearCache() {
 	}
 }
 
-func (cache *CacheService) AddMetricRecord(device string, metric string, value float64) {
+func (cache *CacheService) AddMetricRecord(metric string, value float64) {
 	if err := cache.db.Create(&Metric{
-		Device: device,
 		Metric: metric,
 		Value:  value,
 	}).Error; err != nil {
@@ -47,21 +46,8 @@ func (cache *CacheService) AddMetricRecord(device string, metric string, value f
 	}
 }
 
-func (cache *CacheService) ListDevices() *[]string {
-	var devices []string
-	if err := cache.db.Model(&Metric{}).
-		Distinct("device").
-		Pluck("device", &devices).
-		Error; err != nil {
-		panic(err)
-	}
-	return &devices
-}
-
-func (cache *CacheService) GetMetricsByDevice(device string) *[]Metric {
+func (cache *CacheService) GetMetrics() (*[]Metric, error) {
 	var metrics []Metric
-	if err := cache.db.Where("device = ?", device).Find(&metrics).Error; err != nil {
-		panic(err)
-	}
-	return &metrics
+	err := cache.db.Find(&metrics).Error
+	return &metrics, err
 }

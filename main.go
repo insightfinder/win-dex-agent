@@ -1,12 +1,12 @@
 package main
 
 import (
+	"context"
 	"if-win-dex-agent/cache"
 	"if-win-dex-agent/collector"
 	"if-win-dex-agent/insightfinder"
 	"if-win-dex-agent/tool"
 	"log/slog"
-	"strconv"
 	"time"
 )
 
@@ -24,23 +24,41 @@ func main() {
 	// Init InsightFinder service
 	IFClient := insightfinder.CreateInsightFinderClient("https://stg.insightfinder.com", "maoyuwang", "", "maoyu-test-win-dex-1")
 
-	collectorService := collector.NewPdhCollectorService()
-	collectorService.Collect()
+	generalCollectorService := collector.CreateGeneralCollector()
+	pdhCollectorService := collector.NewPdhCollectorService()
 
-	// Add Thermal data
-	if collectorService.ThermalZoneData != nil {
-		for deviceId, metricData := range collectorService.ThermalZoneData {
-			thermalDeviceName := "ThermalZone-" + strconv.FormatInt(int64(deviceId), 10)
+	for {
+		go func() {
+			startTime := time.Now()
+			slog.Log(context.Background(), slog.LevelInfo, "Start collecting metrics at", "time", startTime)
+			pdhCollectorService.Collect()
+			// Add metrics from generalCollectorService
+			for _, getMetrics := range []func() *map[string]float64{
+				generalCollectorService.GetCPUMetrics,
+				generalCollectorService.GetMemoryMetrics,
+				generalCollectorService.GetDiskMetrics,
+			} {
+				for metricName, metricValue := range *getMetrics() {
+					cacheService.AddMetricRecord(metricName, metricValue)
+				}
+			}
 
-			cacheService.AddMetricRecord(thermalDeviceName, "Temperature", (metricData.HighPrecisionTemperature/10.0)-273.15)
-			cacheService.AddMetricRecord(thermalDeviceName, "%PassiveLimit", metricData.PercentPassiveLimit)
-			cacheService.AddMetricRecord(thermalDeviceName, "ThrottleReason", metricData.ThrottleReasons)
-
-		}
+			// Add metrics from pdhCollectorService
+			for _, getMetrics := range []func() *map[string]float64{
+				pdhCollectorService.GetThermalMetrics,
+				pdhCollectorService.GetNetworkMetrics,
+				pdhCollectorService.GetDiskMetrics,
+			} {
+				for metricName, metricValue := range *getMetrics() {
+					cacheService.AddMetricRecord(metricName, metricValue)
+				}
+			}
+			idm := tool.BuildIDMFromCache(startTime, "Win-Dex-Agent", cacheService)
+			IFClient.SendMetricData(idm)
+			cacheService.ClearCache()
+			slog.Log(context.Background(), slog.LevelInfo, "End collecting metrics at", "time", time.Now())
+		}()
+		time.Sleep(5 * time.Minute)
 	}
 
-	idm := tool.BuildIDMFromCache(time.Now(), "Win-Dex-Agent", cacheService)
-	println(idm)
-	IFClient.SendMetricData(idm)
-	cacheService.ClearCache()
 }
