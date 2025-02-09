@@ -8,29 +8,30 @@ import (
 
 func BuildIDMFromCache(timestamp time.Time, instanceName string, cache *cache.CacheService) *insightfinder.InstanceDataMap {
 	instanceDataMap := make(insightfinder.InstanceDataMap)
-	metricDataPoints := make([]insightfinder.MetricDataPoint, 0)
-
-	allMetricData, err := cache.GetMetrics()
-	if err != nil {
-		return nil
+	for _, deviceName := range *cache.ListDevices() {
+		metricDataPoints := make([]insightfinder.MetricDataPoint, 0)
+		for _, metric := range *cache.GetMetricsByDevice(deviceName) {
+			metricDataPoints = append(metricDataPoints, insightfinder.MetricDataPoint{
+				MetricName: metric.Metric,
+				Value:      metric.Value,
+			})
+		}
+		dit := make(map[int64]insightfinder.DataInTimestamp)
+		dit[timestamp.UnixMilli()] = insightfinder.DataInTimestamp{
+			TimeStamp:        timestamp.UnixMilli(),
+			MetricDataPoints: metricDataPoints,
+		}
+		var combinedInstanceName string
+		if deviceName != "" {
+			combinedInstanceName = deviceName + "_" + instanceName
+		} else {
+			combinedInstanceName = instanceName
+		}
+		instanceDataMap[combinedInstanceName] = insightfinder.InstanceData{
+			InstanceName:       combinedInstanceName,
+			DataInTimestampMap: dit,
+			ComponentName:      instanceName,
+		}
 	}
-
-	for _, metric := range *allMetricData {
-		metricDataPoints = append(metricDataPoints, insightfinder.MetricDataPoint{
-			MetricName: metric.Metric,
-			Value:      metric.Value,
-		})
-	}
-
-	dit := make(map[int64]insightfinder.DataInTimestamp)
-	dit[timestamp.UnixMilli()] = insightfinder.DataInTimestamp{
-		TimeStamp:        timestamp.UnixMilli(),
-		MetricDataPoints: metricDataPoints,
-	}
-	instanceDataMap[instanceName] = insightfinder.InstanceData{
-		InstanceName:       instanceName,
-		DataInTimestampMap: dit,
-	}
-
 	return &instanceDataMap
 }

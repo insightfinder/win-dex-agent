@@ -22,7 +22,7 @@ func main() {
 	}
 
 	// Init InsightFinder service
-	IFClient := insightfinder.CreateInsightFinderClient("https://stg.insightfinder.com", "maoyuwang", "", "maoyu-test-win-dex-1")
+	IFClient := insightfinder.CreateInsightFinderClient("https://app.insightfinder.com", "maoyuwang", "", "Win-Dex-Agent-Test-4")
 
 	generalCollectorService := collector.CreateGeneralCollector()
 	pdhCollectorService := collector.NewPdhCollectorService()
@@ -32,27 +32,42 @@ func main() {
 			startTime := time.Now()
 			slog.Log(context.Background(), slog.LevelInfo, "Start collecting metrics at", "time", startTime)
 			pdhCollectorService.Collect()
+
 			// Add metrics from generalCollectorService
-			for _, getMetrics := range []func() *map[string]float64{
-				generalCollectorService.GetCPUMetrics,
-				generalCollectorService.GetMemoryMetrics,
-				generalCollectorService.GetDiskMetrics,
-			} {
-				for metricName, metricValue := range *getMetrics() {
-					cacheService.AddMetricRecord(metricName, metricValue)
+			for device, metrics := range *generalCollectorService.GetMemoryMetrics() {
+				for metric, value := range metrics {
+					cacheService.AddMetricRecord(device, metric, value)
+				}
+			}
+			for device, metrics := range *generalCollectorService.GetCPUMetrics() {
+				for metric, value := range metrics {
+					cacheService.AddMetricRecord(device, metric, value)
+				}
+			}
+			for device, metrics := range *generalCollectorService.GetProcessMetrics() {
+				for metric, value := range metrics {
+					cacheService.AddMetricRecord(device, metric, value)
 				}
 			}
 
 			// Add metrics from pdhCollectorService
-			for _, getMetrics := range []func() *map[string]float64{
-				pdhCollectorService.GetThermalMetrics,
-				pdhCollectorService.GetNetworkMetrics,
-				pdhCollectorService.GetDiskMetrics,
-			} {
-				for metricName, metricValue := range *getMetrics() {
-					cacheService.AddMetricRecord(metricName, metricValue)
+			for device, metrics := range *pdhCollectorService.GetThermalMetrics() {
+				for metric, value := range metrics {
+					cacheService.AddMetricRecord(device, metric, value)
 				}
 			}
+			for device, metrics := range *pdhCollectorService.GetNetworkMetrics() {
+				for metric, value := range metrics {
+					cacheService.AddMetricRecord(device, metric, value)
+				}
+			}
+
+			for device, metrics := range *pdhCollectorService.GetDiskMetrics() {
+				for metric, value := range metrics {
+					cacheService.AddMetricRecord(device, metric, value)
+				}
+			}
+
 			idm := tool.BuildIDMFromCache(startTime, "Win-Dex-Agent", cacheService)
 			IFClient.SendMetricData(idm)
 			cacheService.ClearCache()
