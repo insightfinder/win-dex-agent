@@ -147,7 +147,7 @@ func (collector *GeneralCollector) GetProcessMetrics() *map[string]map[string]fl
 		}
 		result[name] = make(map[string]float64)
 		result[name]["Process CPU Usage %"] = cpuPercent
-		result[name]["Process Memory Usage MB"] = float64(memInfo.RSS) / 1024 / 1024
+		result[name]["Process Memory Used MB"] = float64(memInfo.RSS) / 1024 / 1024
 	}
 
 	return &result
