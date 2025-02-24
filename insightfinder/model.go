@@ -5,6 +5,7 @@ type InstanceDataMap map[string]InstanceData
 type InstanceData struct {
 	InstanceName       string                    `json:"in" validate:"required"`
 	ComponentName      string                    `json:"cn,omitempty"`
+	ContainerType      int                       `json:"ct,omitempty"` // 0: normal, 1,2,3,4,5 define.
 	DataInTimestampMap map[int64]DataInTimestamp `json:"dit" validate:"required"`
 }
 type DataInTimestamp struct {
