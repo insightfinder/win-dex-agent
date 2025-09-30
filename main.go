@@ -22,7 +22,7 @@ func main() {
 	}
 
 	// Init InsightFinder service
-	IFClient := insightfinder.CreateInsightFinderClient("https://stg.insightfinder.com", "ashvat", "fa28bf0a1a0f6e77c6eea446383b36d0b5a884d2", "Win-Dex-Agent-Test")
+	IFClient := insightfinder.CreateInsightFinderClient("https://app.insightfinder.com", "user", "", "Win-Dex-Agent")
 
 	generalCollectorService := collector.CreateGeneralCollector()
 	pdhCollectorService := collector.NewPdhCollectorService()
