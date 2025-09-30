@@ -195,15 +195,15 @@ func (collector *GeneralCollector) GetNetworkMetrics() *map[string]map[string]fl
 		result[currStat.Name]["Network Inbound Drops/s"] = dropInPerSec
 		result[currStat.Name]["Network Outbound Drops/s"] = dropOutPerSec
 
-		// Total cumulative counters (useful for monitoring)
-		result[currStat.Name]["Network Total Bytes Received"] = float64(currStat.BytesRecv)
-		result[currStat.Name]["Network Total Bytes Sent"] = float64(currStat.BytesSent)
-		result[currStat.Name]["Network Total Packets Received"] = float64(currStat.PacketsRecv)
-		result[currStat.Name]["Network Total Packets Sent"] = float64(currStat.PacketsSent)
-		result[currStat.Name]["Network Total Errors In"] = float64(currStat.Errin)
-		result[currStat.Name]["Network Total Errors Out"] = float64(currStat.Errout)
-		result[currStat.Name]["Network Total Drops In"] = float64(currStat.Dropin)
-		result[currStat.Name]["Network Total Drops Out"] = float64(currStat.Dropout)
+		// // Total cumulative counters (useful for monitoring)
+		// result[currStat.Name]["Network Total Bytes Received"] = float64(currStat.BytesRecv)
+		// result[currStat.Name]["Network Total Bytes Sent"] = float64(currStat.BytesSent)
+		// result[currStat.Name]["Network Total Packets Received"] = float64(currStat.PacketsRecv)
+		// result[currStat.Name]["Network Total Packets Sent"] = float64(currStat.PacketsSent)
+		// result[currStat.Name]["Network Total Errors In"] = float64(currStat.Errin)
+		// result[currStat.Name]["Network Total Errors Out"] = float64(currStat.Errout)
+		// result[currStat.Name]["Network Total Drops In"] = float64(currStat.Dropin)
+		// result[currStat.Name]["Network Total Drops Out"] = float64(currStat.Dropout)
 	}
 
 	return &result
