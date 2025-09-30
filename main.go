@@ -22,7 +22,7 @@ func main() {
 	}
 
 	// Init InsightFinder service
-	IFClient := insightfinder.CreateInsightFinderClient("https://app.insightfinder.com", "maoyuwang", "", "Win-Dex-Agent-Test-4")
+	IFClient := insightfinder.CreateInsightFinderClient("https://app.insightfinder.com", "user", "", "Win-Dex-Agent")
 
 	generalCollectorService := collector.CreateGeneralCollector()
 	pdhCollectorService := collector.NewPdhCollectorService()
@@ -45,6 +45,11 @@ func main() {
 				}
 			}
 			for device, metrics := range *generalCollectorService.GetProcessMetrics() {
+				for metric, value := range metrics {
+					cacheService.AddMetricRecord(device, metric, value)
+				}
+			}
+			for device, metrics := range *generalCollectorService.GetNetworkMetrics() {
 				for metric, value := range metrics {
 					cacheService.AddMetricRecord(device, metric, value)
 				}
